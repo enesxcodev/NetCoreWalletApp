@@ -26,7 +26,7 @@
 
 ## 🎯 Proje Tanımı
 
-**NetCore Wallet Application**, kurumsal ölçekte bir para cüzdanı simülasyonudur. **Best practice** ve **en son mimarisi kalıplarının** gerçek senaryolarda implementasyonunu gösterir.
+**NetCore Wallet Application**, kurumsal ölçekte bir para cüzdanı simülasyonudur. **Best practice** ve **en son mimarisi kalıplarının** gerçek senaryolarda implementasyonunu göstermeye çalıştım.
 
 ### Proje Hedefleri
 ✅ **Clean Architecture** ilkelerine tam uygun katman yapısı  
