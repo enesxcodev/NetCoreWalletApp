@@ -1,0 +1,12 @@
+onion
+cqrs
+result pattern
+pipeline behaviour
+domain exception behaviour
+background service(queu)
+rabbit mq
+mapping
+fluent validaiton
+jwt
+enum
+serilog
