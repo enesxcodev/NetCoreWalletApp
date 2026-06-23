@@ -1,4 +1,35 @@
+## 🔥 IDE kalıntıları
 .vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## 🚀 Derleme Çıktı
 bin/
 obj/
-*.user
+[Ee]xpress/
+[Dd]ebug/
+[Rr]eleased/
+x64/
+x86/
+
+## 🐳 Docker ve diğer araçlar
+.dockerignore
+# Docker-compose yerel override dosyaları
+# docker-compose.override.yml
+
+## 🔒 Gizli Dosyalar ve Ayarlar 
+*.user.config
+#appsettings.Development.json
+
+## 📦 Paket Yönetimi ve Önbellekler
+.nuget/
+packages/
+*.nuget.props
+*.nuget.targets
+
+## 📑 Loglar ve Geçici Dosyalar
+*.log
+.clog
