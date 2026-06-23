@@ -357,4 +357,4 @@ Response: 200 OK
 
 **⭐ Eğer yararlı oldu, bir star vermeyi unutmayın!**
 
-Temiz kodlamalar! 🚀
+Mutlu kodlamalar! 🚀
