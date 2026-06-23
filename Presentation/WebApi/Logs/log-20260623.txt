@@ -1,0 +1,43 @@
+2026-06-23 14:16:56.579 +03:00 [INF] HTTP GET /scalar/ responded 200 in 179.4092 ms
+2026-06-23 14:16:56.633 +03:00 [INF] HTTP GET /scalar/scalar.aspnetcore.js responded 200 in 9.4110 ms
+2026-06-23 14:16:56.673 +03:00 [INF] HTTP GET /scalar/scalar.js responded 200 in 64.2488 ms
+2026-06-23 14:16:56.967 +03:00 [INF] HTTP GET /openapi/v1.json responded 200 in 27.2745 ms
+2026-06-23 14:16:57.597 +03:00 [INF] HTTP GET /scalar/favicon.svg responded 200 in 0.3980 ms
+2026-06-23 14:17:09.759 +03:00 [WRN] You do not have a valid license key for the Lucky Penny software MediatR. This is allowed for development and testing scenarios. If you are running in production you are required to have a licensed version. Please visit https://luckypennysoftware.com to obtain a valid license.
+2026-06-23 14:17:10.101 +03:00 [WRN] You do not have a valid license key for the Lucky Penny software AutoMapper. This is allowed for development and testing scenarios. If you are running in production you are required to have a licensed version. Please visit https://luckypennysoftware.com to obtain a valid license.
+2026-06-23 14:17:10.774 +03:00 [WRN] No store type was specified for the decimal property 'Amount' on entity type 'Transaction'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-06-23 14:17:11.808 +03:00 [INF] enesxkaya giriş yaptı
+2026-06-23 14:17:11.832 +03:00 [INF] HTTP POST /api/Auth/login responded 200 in 2114.2875 ms
+2026-06-23 14:17:53.271 +03:00 [INF] Transaction started for TransactionCreateCommand
+2026-06-23 14:17:53.821 +03:00 [INF] MoneyTransferredEvent başarıyla RabbitMQ'ya fırlatıldı.
+2026-06-23 14:17:53.823 +03:00 [INF] Para Transferi:"c46d3453-2d31-4025-a6c8-f7d79babdf14" nolu kullanıcı WLT-FZV37LYJ nolu cüzdana 1 miktar göndermiştir
+2026-06-23 14:17:53.834 +03:00 [INF] Transaction committed for TransactionCreateCommand
+2026-06-23 14:17:53.836 +03:00 [INF] HTTP POST /api/Wallet/transfer responded 204 in 677.7127 ms
+2026-06-23 14:17:54.094 +03:00 [INF] Kuyruktan mesaj yakalandı! TransactionId: "5c8e465d-1c5a-4527-b015-089c77bc0000"
+2026-06-23 14:17:54.373 +03:00 [INF] MongoDB asenkron audit kaydı başarıyla tamamlandı!
+2026-06-23 14:18:10.866 +03:00 [INF] HTTP GET /api/Wallet/transaction responded 200 in 182.3032 ms
+2026-06-23 14:18:53.661 +03:00 [INF] fewfew kayıt oldu
+2026-06-23 14:18:53.669 +03:00 [ERR] HTTP POST /api/Auth/register responded 500 in 202.0945 ms
+System.InvalidOperationException: The ignore condition 'JsonIgnoreCondition.WhenWritingNull' is not valid on value-type member 'Data' on type 'Application.Common.Result`1[System.Guid]'. Consider using 'JsonIgnoreCondition.WhenWritingDefault'.
+   at System.Text.Json.ThrowHelper.ThrowInvalidOperationException_IgnoreConditionOnValueTypeInvalid(String clrPropertyName, Type propertyDeclaringType)
+   at System.Text.Json.Serialization.Metadata.JsonPropertyInfo`1.ConfigureIgnoreCondition(Nullable`1 ignoreCondition)
+   at System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.PopulatePropertyInfo(JsonPropertyInfo jsonPropertyInfo, MemberInfo memberInfo, JsonConverter customConverter, Nullable`1 ignoreCondition, NullabilityInfoContext nullabilityCtx, Boolean shouldCheckForRequiredKeyword, Boolean hasJsonIncludeAttribute)
+   at System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.CreatePropertyInfo(JsonTypeInfo typeInfo, Type typeToConvert, MemberInfo memberInfo, NullabilityInfoContext nullabilityCtx, JsonSerializerOptions options, Boolean shouldCheckForRequiredKeyword, Boolean hasJsonIncludeAttribute)
+   at System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.AddMembersDeclaredBySuperType(JsonTypeInfo typeInfo, Type currentType, NullabilityInfoContext nullabilityCtx, Boolean constructorHasSetsRequiredMembersAttribute, PropertyHierarchyResolutionState& state)
+   at System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.PopulateProperties(JsonTypeInfo typeInfo, NullabilityInfoContext nullabilityCtx)
+   at System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.CreateTypeInfoCore(Type type, JsonConverter converter, JsonSerializerOptions options)
+   at System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.GetTypeInfo(Type type, JsonSerializerOptions options)
+   at System.Text.Json.JsonSerializerOptions.CachingContext.CreateCacheEntry(Type type, CachingContext context)
+--- End of stack trace from previous location ---
+   at System.Text.Json.JsonSerializerOptions.GetTypeInfoInternal(Type type, Boolean ensureConfigured, Nullable`1 ensureNotNull, Boolean resolveIfMutable, Boolean fallBackToNearestAncestorType)
+   at System.Text.Json.JsonSerializerOptions.GetTypeInfo(Type type)
+   at Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonOutputFormatter.WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResultFilterAsync>g__Awaited|30_0[TFilter,TFilterAsync](ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResultExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.ResultNext[TFilter,TFilterAsync](State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeResultFilters()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)

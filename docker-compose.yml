@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  wallet-api:
+    image: wallet-app-api
+    build:
+      context: .
+      dockerfile: Presentation/WebApi/Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MT_LICENSE
+      - MT_LICENSE_PATH=
+      - Logging__LogLevel__Default=Information
+      
+      # 🎯 .NET AYARLARINI EZİYORUZ (JSON hiyerarşisine tam uyumlu kanka)
+      - ConnectionStrings__Default=Server=sqlserver;Database=WalletDb;User Id=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;
+      - ConnectionStrings__Redis=redis:6379
+      
+      - RabbitMqSettings__Host=rabbitmq
+      - RabbitMqSettings__Port=5672
+      - RabbitMqSettings__Username=guest
+      - RabbitMqSettings__Password=guest
+      
+      - MongoDbSettings__ConnectionString=mongodb://admin:mongodb@mongodb:27017/WalletAppReportDb?authSource=admin&authMechanism=SCRAM-SHA-256
+      - MongoDbSettings__DatabaseName=WalletAppReportDb
+    depends_on:
+      - sqlserver
+      - mongodb
+      - redis
+      - rabbitmq
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourSecurePassword123!
+    ports:
+      - "1433:1433"
+
+  mongodb:
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=mongodb
+    ports:
+      - "27017:27017"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:4.0-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"

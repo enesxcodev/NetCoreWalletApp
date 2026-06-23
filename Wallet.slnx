@@ -9,6 +9,9 @@
   <Folder Name="/Presentation/">
     <Project Path="Presentation/WebApi/WebApi.csproj" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/Test/Test.csproj" Id="c53b787e-1212-47bb-aa25-bfebfecf5e68" />
   </Folder>

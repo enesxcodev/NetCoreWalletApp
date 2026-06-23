@@ -27,8 +27,8 @@ public class Result
 }
 
 public class Result<T> : Result
-{
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+{    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public T? Data { get; }
     private Result(bool isSuccess, T? data, ResultStatus status, string? error, List<string>? errors = null)
         : base(isSuccess, status, error, errors) => Data = data;
