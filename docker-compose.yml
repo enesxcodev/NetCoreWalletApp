@@ -14,7 +14,7 @@ services:
       - MT_LICENSE_PATH=
       - Logging__LogLevel__Default=Information
       
-      # 🎯 .NET AYARLARINI EZİYORUZ (JSON hiyerarşisine tam uyumlu kanka)
+      # 🎯 .NET AYARLARINI EZİYORUZ (JSON hiyerarşisine tam uyumlu)
       - ConnectionStrings__Default=Server=sqlserver;Database=WalletDb;User Id=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;
       - ConnectionStrings__Redis=redis:6379
       

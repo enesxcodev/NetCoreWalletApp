@@ -25,7 +25,7 @@ using (var scope = app.Services.CreateScope())
 {
     try
     {
-        // Kendi DbContext sınıfının adını buraya yaz kanka (Örn: WalletDbContext)
+        // Kendi DbContext sınıfının adını buraya yaz (Örn: WalletDbContext)
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         // Eğer veri tabanı yoksa yaratır, migration'lar eksikse içeri basar
@@ -35,7 +35,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"[Docker-Init] Migration atılırken hata çıktı kanka: {ex.Message}");
+        Console.WriteLine($"[Docker-Init] Migration atılırken hata çıktı : {ex.Message}");
     }
 }
 // 4. Middleware (İstek Hattı) Sıralaması
