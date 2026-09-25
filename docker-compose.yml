@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  frontend:
+    image: wallet-frontend
+    build:
+      context: ./Presentation/Frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:5001
+    ports:
+      - "5173:80"
+    depends_on:
+      - wallet-api
+
   wallet-api:
     image: wallet-app-api
     build:

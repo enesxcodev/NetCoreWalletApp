@@ -12,7 +12,7 @@ namespace Application.Features.Wallet.Handlers
         {
             var wallet = await walletRepository.GetByUserIdAsync(userContext.UserId, cancellationToken);
             if (wallet is null)
-                Result.Failure(Messages.Wallet.WalletNotFound_TWO, Common.Enums.ResultStatus.NoContent);
+                return Result.Failure(Messages.Wallet.WalletNotFound_TWO, Common.Enums.ResultStatus.NotFound);
 
             wallet.Withdraw(request.Amount);
             walletRepository.Update(wallet);

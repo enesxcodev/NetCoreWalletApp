@@ -16,7 +16,8 @@ namespace Application.Features.Transaction.Handlers
         ITransaction transactionRepository,
         IWalletRepository walletRepository,
         IDistributedCache cache,
-        ITransactionAuditService auditService
+        ITransactionAuditService auditService,
+        ITransactionHistoryCacheVersion cacheVersion
         ): IRequestHandler<GetTransactionHistoryQuery, Result<IEnumerable<TransactionHistoryResult>>>
     {
         public async Task<Result<IEnumerable<TransactionHistoryResult>>> Handle(GetTransactionHistoryQuery request, CancellationToken cancellationToken)
@@ -26,7 +27,8 @@ namespace Application.Features.Transaction.Handlers
             if (wallet is null)
                 return Result<IEnumerable<TransactionHistoryResult>>.Failure(Messages.Wallet.TransactionNotFoundWallet);
 
-            string cacheKey = $"tx_history:{wallet.Id}:p_{request.PageNumber}:s_{request.PageSize}";
+            var version = await cacheVersion.GetAsync(wallet.Id, cancellationToken);
+            string cacheKey = $"tx_history:{wallet.Id}:v_{version}:p_{request.PageNumber}:s_{request.PageSize}";
 
             // 1. Önce Redis'e bakıyoruz 
             var cachedData = await cache.GetAsync<IEnumerable<TransactionHistoryResult>>(cacheKey, cancellationToken);

@@ -76,7 +76,7 @@ namespace Test
 
             // 3. Assert
             result.IsSuccess.Should().BeFalse(); // Başarısız olmalı
-            result.Error.Should().Be("Cüzdan bulunamadı"); // Hata mesajı eşleşmeli
+            result.Error.Should().Be("Cüzdan Bulunamadı"); // Hata mesajı eşleşmeli
 
             // Cüzdan yoksa Update ve SaveChanges ASLA tetiklenmemeli! (Güvenlik Kontrolü)
             mockWalletRepo.Verify(r => r.Update(It.IsAny<Wallet>()), Times.Never);

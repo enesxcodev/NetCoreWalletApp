@@ -17,6 +17,9 @@ builder.Services.AddApplication(builder.Configuration);      // Sonra MediatR Ha
 builder.Services.AddApi();                                  // En son API katmanı bağımlılıkları
 // 3. Controller'ları Ekle (Yukarıdaki tüm JWT şemalarını görerek mühürlesin)
 builder.Services.AddControllers();
+builder.Services.AddCors(options => options.AddPolicy("Frontend", policy =>
+    policy.WithOrigins(builder.Configuration["Frontend:Origin"] ?? "http://localhost:5173", "http://127.0.0.1:5173")
+        .AllowAnyHeader().AllowAnyMethod()));
 
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 var app = builder.Build();
@@ -47,6 +50,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
+app.UseCors("Frontend");
 
 // 🎯 Kapıdaki Bekçiler (Sıralama Hayatidir)
 app.UseAuthentication(); // 1. Önce Kimlik Doğrulama (Kimsin?)

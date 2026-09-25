@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Data;
 
 namespace Persistence.Context
 {
@@ -19,7 +20,8 @@ namespace Persistence.Context
             GC.SuppressFinalize(this);
         }
 
-        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default) => await context.Database.BeginTransactionAsync(cancellationToken);
+        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default) =>
+            await context.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         public async Task CommitTransactionAsync(CancellationToken cancellationToken = default) => await context.Database.CommitTransactionAsync(cancellationToken);
         public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default) => await context.Database.RollbackTransactionAsync(cancellationToken);
     }

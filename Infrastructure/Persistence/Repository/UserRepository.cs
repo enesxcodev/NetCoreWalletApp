@@ -53,10 +53,10 @@ namespace Persistence.Repository
                 }
 
                 await AddAsync(appUser, cancellationToken);
-                await unitOfWork.SaveChangesAsync(cancellationToken);
-                await unitOfWork.CommitTransactionAsync(cancellationToken);
                 var userEvent = new UserRegisteredEvent(appUser.Id);
                 await messageBus.PublishAsync(userEvent, "user-registered-queue", cancellationToken);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+                await unitOfWork.CommitTransactionAsync(cancellationToken);
                 return Result<Guid>.Success(appUser.Id, ResultStatus.Created);
             }
             catch

@@ -48,12 +48,24 @@ namespace Persistence.Extension
             // ===== USER-SPECIFIC REPOSITORY KAYITLARI =====
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IWalletRepository, WalletRepository>();
+            services.AddScoped<ITransferContactReader, TransferContactReader>();
             services.AddScoped<ITransaction, TransactionRepository>();
+            services.AddScoped<IIdempotencyRepository, IdempotencyRepository>();
             services.AddScoped<ITransactionAuditService, TransactionAuditService>(); //mongo
+            services.AddScoped<ITransactionHistoryCacheVersion, TransactionHistoryCacheVersion>();
+            services.AddHostedService<MongoIndexInitializer>();
+            services.AddHostedService<IdempotencyCleanupService>();
 
             // ===== MASSTRANSIT & RABBITMQ CONFIGURATION =====
             services.AddMassTransit(x =>
             {
+                x.AddEntityFrameworkOutbox<AppDbContext>(o =>
+                {
+                    o.UseSqlServer();
+                    o.UseBusOutbox();
+                    o.QueryDelay = TimeSpan.FromSeconds(1);
+                });
+
                 x.AddConsumer<UserRegisteredEventConsumer>();
                 x.AddConsumer<Application.Consumers.MoneyTransferredConsumer>(); // 🎯 1. Yeni consumer'ı MassTransit'e tanıttık
 
@@ -70,7 +82,8 @@ namespace Persistence.Extension
                     // 2. 🚀 kullanıcı kaydoldgnda oluşturulacak cuzdanın queusi
                     cfg.ReceiveEndpoint("user-registered-queue", e =>
                     {
-                        e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                        e.UseMessageRetry(r => r.Exponential(5, TimeSpan.FromSeconds(1), TimeSpan.FromMinutes(1), TimeSpan.FromSeconds(5)));
+                        e.UseEntityFrameworkOutbox<AppDbContext>(context);
                         e.ConfigureConsumer<UserRegisteredEventConsumer>(context);
                     });
 
@@ -78,7 +91,8 @@ namespace Persistence.Extension
                     cfg.ReceiveEndpoint("money-transferred-queue", e =>
                     {
                         // Hata alursa 5 saniyede bir 3 kere tekrar dene (Kurumsal Defans)
-                        e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                        e.UseMessageRetry(r => r.Exponential(5, TimeSpan.FromSeconds(1), TimeSpan.FromMinutes(1), TimeSpan.FromSeconds(5)));
+                        e.UseEntityFrameworkOutbox<AppDbContext>(context);
 
                         e.ConfigureConsumer<Application.Consumers.MoneyTransferredConsumer>(context);
                     });

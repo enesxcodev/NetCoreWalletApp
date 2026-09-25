@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace Application.Consumers;
 
 public class MoneyTransferredConsumer(
-    ITransactionAuditService auditService, // 🎯 Eski dostu buraya enjekte ediyoruz!
+    ITransactionAuditService auditService,
+    ITransactionHistoryCacheVersion cacheVersion,
     ILogger<MoneyTransferredConsumer> logger
 ) : IConsumer<MoneyTransferredEvent> // MassTransit interface'i
 {
@@ -15,7 +16,9 @@ public class MoneyTransferredConsumer(
     {
         var message = context.Message;
 
-        logger.LogInformation("Kuyruktan mesaj yakalandı! TransactionId: {Id}", message.TransactionId);
+        logger.LogInformation(
+            "Transfer event'i alındı. MessageId: {MessageId}, CorrelationId: {CorrelationId}, TransactionId: {TransactionId}, IdempotencyKey: {IdempotencyKey}",
+            context.MessageId, context.CorrelationId, message.TransactionId, message.IdempotencyKey);
 
         // 🚀 Az önce Handler'da doğrudan çağırdığımız Mongo kayıt kodunu artık arka planda tetikliyoruz
         await auditService.IdempotentLogAsync(
@@ -30,6 +33,9 @@ public class MoneyTransferredConsumer(
             context.CancellationToken
         );
 
-        logger.LogInformation("MongoDB asenkron audit kaydı başarıyla tamamlandı!");
+        await cacheVersion.IncrementAsync(message.SenderWalletId, context.CancellationToken);
+        await cacheVersion.IncrementAsync(message.ReceiverWalletId, context.CancellationToken);
+
+        logger.LogInformation("MongoDB audit kaydı ve Redis cache invalidation tamamlandı. TransactionId: {TransactionId}", message.TransactionId);
     }
 }

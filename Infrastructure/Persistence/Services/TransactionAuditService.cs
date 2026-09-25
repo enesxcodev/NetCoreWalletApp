@@ -15,7 +15,8 @@ public class TransactionAuditService(IMongoDatabase mongoDb) : ITransactionAudit
         var collection = mongoDb.GetCollection<TransactionDocument>("AuditTransactions");
 
         var document = new TransactionDocument
-        {            
+        {
+            Id = transactionId,
             TransactionId = transactionId,
             SenderWalletId = senderId,
             SenderWalletCode = senderCode,
@@ -27,7 +28,12 @@ public class TransactionAuditService(IMongoDatabase mongoDb) : ITransactionAudit
             CreatedAt = DateTime.UtcNow
         };
 
-        await collection.InsertOneAsync(document, null, cancellationToken);
+        var filter = Builders<TransactionDocument>.Filter.Eq(x => x.TransactionId, transactionId);
+        await collection.ReplaceOneAsync(
+            filter,
+            document,
+            new ReplaceOptions { IsUpsert = true },
+            cancellationToken);
     }
 
     public async Task<IEnumerable<TransactionHistoryResult>> GetHistoryAsync(Guid walletId, int pageNumber, int pageSize, CancellationToken cancellationToken)

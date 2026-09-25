@@ -9,6 +9,7 @@ using MongoDB.Driver;
 using Persistence.Context;
 using Persistence.Identity;
 using System.Data;
+using StackExchange.Redis;
 namespace Persistence.Extension
 {
     public static class AppDbRegister
@@ -31,6 +32,8 @@ namespace Persistence.Extension
                 options.Configuration = configuration.GetConnectionString("Redis");
                 options.InstanceName = "WalletApp_"; // redis cache anahtarı 
             });
+            services.AddSingleton<IConnectionMultiplexer>(_ =>
+                ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")!));
 
             //mongodb
 
@@ -50,7 +53,7 @@ namespace Persistence.Extension
                 return new MongoClient(mongoSettings);
             });
 
-            services.AddScoped<IMongoDatabase>(sp =>
+            services.AddSingleton<IMongoDatabase>(sp =>
             {
                 var client = sp.GetRequiredService<IMongoClient>();
                 var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;

@@ -15,7 +15,8 @@ namespace Application.Features.Transaction.Handlers
         IUserContext userContext,
         ITransaction transactionRepository,
         IWalletRepository walletRepository,
-        IDistributedCache cache
+        IDistributedCache cache,
+        ITransactionHistoryCacheVersion cacheVersion
         )
     : IRequestHandler<GetTransactionHistoryQuery, Result<IEnumerable<TransactionHistoryResult>>>
     {
@@ -26,7 +27,8 @@ namespace Application.Features.Transaction.Handlers
             if (wallet is null)
                 return Result<IEnumerable<TransactionHistoryResult>>.Failure(Messages.Wallet.TransactionNotFoundWallet);
 
-            string cacheKey = $"tx_history:{wallet.Id}:p_{request.PageNumber}:s_{request.PageSize}";
+            var version = await cacheVersion.GetAsync(wallet.Id, cancellationToken);
+            string cacheKey = $"tx_history:{wallet.Id}:v_{version}:p_{request.PageNumber}:s_{request.PageSize}";
             var cachedData = await cache.GetAsync<IEnumerable<TransactionHistoryResult>>(cacheKey, cancellationToken);
             if (cachedData is not null)                            
                 return Result<IEnumerable<TransactionHistoryResult>>.Success(cachedData);

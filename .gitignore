@@ -33,3 +33,6 @@ packages/
 ## 📑 Loglar ve Geçici Dosyalar
 *.log
 .clog
+Obsidian/
+.obsidian/
+OUTBOX-IDEMPOTENCY.md

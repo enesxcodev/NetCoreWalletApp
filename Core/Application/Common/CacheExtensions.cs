@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
-using StackExchange.Redis;
 namespace Application.Common
 {
     public static class CacheExtensions
@@ -28,19 +27,5 @@ namespace Application.Common
             return JsonSerializer.Deserialize<T>(json);
         }
 
-        public static async Task RemoveByPrefixAsync(this IDistributedCache cache, string prefix)
-        {
-            // IDistributedCache üzerinden gerçek Redis bağlantısına ulaşıyoruz
-            var connectionMultiplexer = ConnectionMultiplexer.Connect("localhost:6379");
-            var server = connectionMultiplexer.GetServer(connectionMultiplexer.GetEndPoints().First());
-
-            // InstanceName önekini de hesaba katarak ilgili tüm keyleri buluyoruz (Örn: WalletApp_tx_history:walletId:*)
-            var keys = server.Keys(pattern: $"*{prefix}*").ToArray();
-
-            foreach (var key in keys)
-            {
-                await cache.RemoveAsync(key.ToString().Replace("WalletApp_", "")); // prefixi temizleyip sildir
-            }
-        }
     }
 }

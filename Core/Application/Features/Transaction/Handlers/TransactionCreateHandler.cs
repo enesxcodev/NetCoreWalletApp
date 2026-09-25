@@ -1,81 +1,85 @@
-﻿using Application.Common;
+using Application.Common;
 using Application.Common.Constant;
+using Application.Common.Enums;
 using Application.Contracts;
-using Application.Contracts.Events; 
+using Application.Contracts.Events;
 using Application.Features.Transaction.Commands;
 using Domain.Common;
-using MassTransit; // 🎯 MassTransit'i ekledik
+using Domain.Entities;
+using MassTransit;
 using MediatR;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using WalletTransfer = Domain.Entities.Transaction;
 
-namespace Application.Features.Transaction.Handlers
+namespace Application.Features.Transaction.Handlers;
+
+public class TransactionCreateHandler(
+    ITransaction transactionRepository,
+    IWalletRepository walletRepository,
+    IIdempotencyRepository idempotencyRepository,
+    IUserContext userContext,
+    ILogger<TransactionCreateHandler> logger,
+    IPublishEndpoint publishEndpoint
+) : IRequestHandler<TransactionCreateCommand, Result<Guid>>
 {
-    public class TransactionCreateHandler(
-        ITransaction transactionRepository,
-        IWalletRepository walletRepository,
-        IUserContext userContext,
-        ILogger<TransactionCreateHandler> logger,
-        IUnitOfWork unitOfwork,
-        IDistributedCache cache,
-        IPublishEndpoint publishEndpoint // 🎯 auditService gitti, yerine kuyruk fırlatıcısı geldi!
-        ) : IRequestHandler<TransactionCreateCommand, Result>
+    public async Task<Result<Guid>> Handle(TransactionCreateCommand request, CancellationToken cancellationToken)
     {
-        public async Task<Result> Handle(TransactionCreateCommand request, CancellationToken cancellationToken)
+        var senderId = userContext.UserId;
+        var requestHash = ComputeRequestHash(senderId, request);
+        await idempotencyRepository.AcquireLockAsync(senderId, request.IdempotencyKey, cancellationToken);
+        var existingRequest = await idempotencyRepository.GetAsync(senderId, request.IdempotencyKey, cancellationToken);
+
+        if (existingRequest is not null)
         {
-            var senderId = userContext.UserId;
+            if (!string.Equals(existingRequest.RequestHash, requestHash, StringComparison.Ordinal))
+                return Result<Guid>.Failure("Aynı Idempotency-Key farklı bir istek için kullanılamaz.", ResultStatus.Conflict);
 
-            // Önce gönderenin wallet'ını çekelim
-            var senderWallet = await walletRepository.GetByUserIdAsync(senderId, cancellationToken);
-            if (senderWallet is null)
-            {
-                logger.LogWarning("{senderId} nolu wallet bulunamamıştır", senderId);
-                return Result.Failure(Messages.Wallet.WalletNotFound);
-            }
-
-            // Alıcının cüzdanını çek
-            var receiverWallet = await walletRepository.GetByCodeAsync(request.WalletCode, cancellationToken);
-            if (receiverWallet is null)
-            {
-                logger.LogWarning("{WalletCode} nolu wallet bulunamamıştır", request.WalletCode);
-                return Result.Failure(Messages.Wallet.ReceiveWalletNotFound);
-            }
-
-            // Kontroller tamam şimdi cüzdanlara işle
-            senderWallet.Withdraw(request.Amount);
-            receiverWallet.Deposit(request.Amount);
-
-            var transfer = new WalletTransfer(senderWallet.Id, receiverWallet.Id, request.Amount, request.Description!, TransferType.Out);
-
-            // Güncelleme işlemlerini bas            
-            await transactionRepository.AddAsync(transfer);
-
-            // 🎯 SQL'e kaydet
-            await unitOfwork.SaveChangesAsync(cancellationToken);
-
-            // 🎯 Kayıt başarılı olduktan sonra Redis cache'lerini uçuruyoruz
-            string senderCachePrefix = $"tx_history:{senderWallet.Id}";
-            string receiverCachePrefix = $"tx_history:{receiverWallet.Id}";
-
-            await cache.RemoveByPrefixAsync(senderCachePrefix);
-            await cache.RemoveByPrefixAsync(receiverCachePrefix);
-
-            // 🚀 rabbitmq ya datanın mongodb ya yazmasının eventi
-            var transferEvent = new MoneyTransferredEvent(
-                transfer.Id,
-                senderWallet.Id,
-                senderWallet.Code,
-                receiverWallet.Id,
-                receiverWallet.Code,
-                request.Amount,
-                request.Description ?? "transfer"
-            );
-
-            await publishEndpoint.Publish(transferEvent, cancellationToken);
-            logger.LogInformation("MoneyTransferredEvent başarıyla RabbitMQ'ya fırlatıldı.");
-            logger.LogInformation("Para Transferi:{senderId} nolu kullanıcı {Code} nolu cüzdana {Amount} miktar göndermiştir", senderId, receiverWallet.Code, request.Amount);
-            return Result.Success();
+            logger.LogInformation(
+                "Idempotent transfer cevabı tekrar oynatıldı. UserId: {UserId}, TransactionId: {TransactionId}, IdempotencyKey: {IdempotencyKey}",
+                senderId, existingRequest.TransactionId, request.IdempotencyKey);
+            return Result<Guid>.Success(existingRequest.TransactionId);
         }
+
+        var senderWallet = await walletRepository.GetByUserIdAsync(senderId, cancellationToken);
+        if (senderWallet is null)
+            return Result<Guid>.Failure(Messages.Wallet.WalletNotFound);
+
+        var receiverWallet = await walletRepository.GetByCodeAsync(request.WalletCode, cancellationToken);
+        if (receiverWallet is null)
+            return Result<Guid>.Failure(Messages.Wallet.ReceiveWalletNotFound);
+
+        senderWallet.Withdraw(request.Amount);
+        receiverWallet.Deposit(request.Amount);
+
+        var transfer = new WalletTransfer(senderWallet.Id, receiverWallet.Id, request.Amount,
+            request.Description ?? "transfer", Domain.Common.TransferType.Out);
+        await transactionRepository.AddAsync(transfer);
+
+        var response = Result<Guid>.Success(transfer.Id);
+        var now = DateTime.UtcNow;
+        await idempotencyRepository.AddAsync(new IdempotencyRecord(
+            senderId, request.IdempotencyKey, requestHash, transfer.Id, (int)ResultStatus.Ok,
+            JsonSerializer.Serialize(response), now, now.AddHours(24)), cancellationToken);
+
+        await publishEndpoint.Publish(new MoneyTransferredEvent(
+            transfer.Id, senderWallet.Id, senderWallet.Code, receiverWallet.Id, receiverWallet.Code,
+            request.Amount, request.Description ?? "transfer", request.IdempotencyKey), cancellationToken);
+
+        logger.LogInformation(
+            "Transfer SQL transaction'ına ve outbox'a eklendi. UserId: {UserId}, TransactionId: {TransactionId}, IdempotencyKey: {IdempotencyKey}",
+            senderId, transfer.Id, request.IdempotencyKey);
+        return response;
+    }
+
+    private static string ComputeRequestHash(Guid userId, TransactionCreateCommand request)
+    {
+        var canonicalValue = string.Join('|', userId.ToString("N"), request.WalletCode.Trim().ToUpperInvariant(),
+            request.Amount.ToString("0.############################", CultureInfo.InvariantCulture),
+            (request.Description ?? "transfer").Trim());
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonicalValue)));
     }
 }

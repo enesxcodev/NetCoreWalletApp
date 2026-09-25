@@ -20,7 +20,7 @@ namespace Domain.Entities
 
         public AppUser(Guid id, string firstName, string lastName, string email, string userName)
         {
-            this.Id = id; // 🚀 Artık burası hatasız çalışacak ve ezilecek!
+            this.Id = id;
             FirstName = firstName ?? "";
             LastName = lastName ?? "";
             Email = email;

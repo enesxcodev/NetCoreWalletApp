@@ -11,6 +11,7 @@ namespace Application.Contracts.Events
      Guid ReceiverWalletId,
      string ReceiverWalletCode,
      decimal Amount,
-     string Description
+     string Description,
+     string IdempotencyKey
  );
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Domain.Common
+﻿namespace Domain.Common
 {
     //tüm entitylerde olması gerken ortak base entityimiz
     public abstract class BaseEntity
