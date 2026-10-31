@@ -5,6 +5,7 @@ using WebApi.Extension;
 using Serilog;
 using Persistence.Context; // 1. Burayı ekle
 using Microsoft.EntityFrameworkCore;
+using Infrastructure.Agent;
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Önce Temel API/OpenAPI Servislerini Ekle
@@ -14,6 +15,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddContext(builder.Configuration);          // Önce Veritabanı (AppDbContext)
 builder.Services.PersistenceRegisters(builder.Configuration); // Sonra Altyapı (MassTransit, IdentityCore, Repositories)
 builder.Services.AddApplication(builder.Configuration);      // Sonra MediatR Handler'lar (MassTransit'i görebilsin diye)
+builder.Services.AddWalletAgent(builder.Configuration);
 builder.Services.AddApi();                                  // En son API katmanı bağımlılıkları
 // 3. Controller'ları Ekle (Yukarıdaki tüm JWT şemalarını görerek mühürlesin)
 builder.Services.AddControllers();

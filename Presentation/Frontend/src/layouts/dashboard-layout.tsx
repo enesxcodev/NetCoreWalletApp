@@ -1,4 +1,4 @@
-import { Activity, ArrowDownLeft, ArrowRightFromLine, ArrowUpRight, History, LayoutDashboard, Menu, Send, UsersRound, WalletCards } from 'lucide-react'
+import { Activity, ArrowDownLeft, ArrowRightFromLine, ArrowUpRight, History, LayoutDashboard, Menu, MessageCircle, Send, UsersRound, WalletCards } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../app/auth-context'
@@ -13,7 +13,7 @@ export function DashboardLayout() {
   const logout = () => { signOut(); navigate('/login', { replace: true }) }
   const pageTitle: Record<string, string> = {
     '/dashboard': 'Genel bakış', '/deposit': 'Para yatır', '/withdraw': 'Para çek',
-    '/transfer': 'Transfer', '/transactions': 'İşlem geçmişi', '/contacts': 'Transfer Kişileri', '/architecture': 'Mimari akış',
+    '/transfer': 'Transfer', '/transactions': 'İşlem geçmişi', '/contacts': 'Transfer Kişileri', '/architecture': 'Mimari akış', '/assistant': 'Cüzdan asistanı',
   }
   useEffect(() => { setMenuOpen(false) }, [location.pathname])
 
@@ -28,6 +28,7 @@ export function DashboardLayout() {
         <NavLink className={({ isActive }) => `dashboard-nav-link ${isActive ? 'active' : ''}`} to="/transfer" onClick={() => setMenuOpen(false)}><Send size={18} /> Transfer</NavLink>
         <NavLink className={({ isActive }) => `dashboard-nav-link ${isActive ? 'active' : ''}`} to="/transactions" onClick={() => setMenuOpen(false)}><History size={18} /> İşlem geçmişi</NavLink>
         <NavLink className={({ isActive }) => `dashboard-nav-link ${isActive ? 'active' : ''}`} to="/contacts" onClick={() => setMenuOpen(false)}><UsersRound size={18} /> Transfer Kişileri</NavLink>
+        <NavLink className={({ isActive }) => `dashboard-nav-link ${isActive ? 'active' : ''}`} to="/assistant" onClick={() => setMenuOpen(false)}><MessageCircle size={18} /> Cüzdan asistanı</NavLink>
         <NavLink className={({ isActive }) => `dashboard-nav-link ${isActive ? 'active' : ''}`} to="/architecture" onClick={() => setMenuOpen(false)}><Activity size={18} /> Mimari akış</NavLink>
         <div className="sidebar-bottom"><button className="logout-button" type="button" onClick={logout}><ArrowRightFromLine size={18} /> Güvenli çıkış</button><p>Wallet · Güvenli cüzdanınız</p></div>
       </aside>

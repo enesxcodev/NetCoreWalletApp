@@ -8,6 +8,7 @@ import { TransferPage } from '../features/transfer/transfer-page'
 import { TransactionsPage } from '../features/transactions/transactions-page'
 import { ContactsPage } from '../features/contacts/contacts-page'
 import { ArchitecturePage } from '../features/architecture/architecture-page'
+import { AssistantPage } from '../features/assistant/assistant-page'
 import { NotFoundPage } from '../features/not-found/not-found-page'
 import { ProtectedRoute, PublicOnlyRoute } from '../routes/route-guards'
 
@@ -28,6 +29,7 @@ export function AppRouter() {
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/contacts" element={<ContactsPage />} />
           <Route path="/architecture" element={<ArchitecturePage />} />
+          <Route path="/assistant" element={<AssistantPage />} />
         </Route>
       </Route>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

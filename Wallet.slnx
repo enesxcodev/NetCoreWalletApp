@@ -4,6 +4,7 @@
     <Project Path="Core/Domain/Domain.csproj" />
   </Folder>
   <Folder Name="/Infrastructure/">
+    <Project Path="Infrastructure/Agent/Agent.csproj" Id="67998cde-acd1-46ca-8f83-265e1f5de5ed" />
     <Project Path="Infrastructure/Persistence/Persistence.csproj" />
   </Folder>
   <Folder Name="/Presentation/">
